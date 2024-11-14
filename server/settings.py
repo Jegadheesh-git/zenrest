@@ -126,7 +126,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend/assets'),  # Your JS, CSS files
+    os.path.join(BASE_DIR, 'frontend/assets/'),  # Your JS, CSS files
 ]
 
 # Serve frontend build folder as a static root
