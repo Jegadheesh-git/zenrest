@@ -17457,7 +17457,7 @@ var e9 = ({
 const zh = async (e, t, n) => {
     const { login: r, logout: s } = ha.getState();
     try {
-      const i = await de.post("http://localhost:8000/api/user/login/", {
+      const i = await de.post("http://13.201.19.162/api/user/login/", {
           email: e,
           password: t,
         }),
@@ -17483,7 +17483,7 @@ const zh = async (e, t, n) => {
       has_accepted_nl: e.isNewsLetter,
     };
     try {
-      const r = await de.post("http://127.0.0.1:8000/api/user/signup/", n, {
+      const r = await de.post("http://13.201.19.162/api/user/signup/", n, {
         headers: { "Content-Type": "application/json" },
       });
       return (
