@@ -8,6 +8,12 @@ from django.db.models import Q, Sum, Count
 from rest_framework import status
 from rest_framework.response import Response
 from apiBall.models import Ball
+from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework.parsers import MultiPartParser
+import os
+
+VIDEO_UPLOAD_DIR = "media/videos/"
 
 class MatchListView(generics.ListCreateAPIView):
     serializer_class = MatchSerializer
@@ -275,12 +281,14 @@ class UltimateMatchDetailsView(generics.RetrieveAPIView):
             'striker': last_ball.striker if last_ball else None,
             'nonStriker': last_ball.nonStriker if last_ball else None,
             'bowler': last_ball.bowler if last_ball else None,
+            'ballNumber': last_ball.ballNumber if last_ball else None,
         }
 
         remainingBalls = (round(team_overs, 1) * 10) % 10
         striker = ''
         nonStriker = ''
         bowler = ''
+        ballnumber = 0
 
         if(last_ball):
             if(((last_ball_data['strikerRuns'] %2 != 0 or last_ball_data['byeRuns'] %2 != 0 or last_ball_data['legByeRuns'] %2 != 0 ) and (remainingBalls != 5)) or ((last_ball_data['strikerRuns'] %2 != 0 or last_ball_data['byeRuns'] %2 != 0 or last_ball_data['legByeRuns'] %2 != 0 ) and last_ball_data['wideRuns'] == 0 and last_ball_data['noBallRuns'] == 0 and remainingBalls == 5)):
@@ -300,13 +308,68 @@ class UltimateMatchDetailsView(generics.RetrieveAPIView):
             
             if(last_ball_data['dismissedPlayer'] == nonStriker):
                 nonStriker = ''
+            
+            ballnumber = last_ball_data['ballNumber']
         
         player_data = {
             'striker': striker,
             'nonStriker': nonStriker,
-            'bowler': bowler
+            'bowler': bowler,
+            'ballNumber': ballnumber
         }
 
         # Pass the stats to the serializer context
         serializer = self.get_serializer(match, context={'team_stats': team_stats_data,'player_data':player_data})
         return Response(serializer.data)
+
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+
+class UploadVideosAPIView(APIView):
+    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can access
+
+    parser_classes = [MultiPartParser]  # To handle file uploads
+
+    def post(self, request, *args, **kwargs):
+        match_id = request.query_params.get("matchId")
+        if not match_id:
+            return Response({"error": "Match ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if the match exists and belongs to the authenticated user
+        match = get_object_or_404(Match, pk=match_id)
+        if match.user != request.user:
+            return Response({"error": "You are not authorized to upload videos for this match."}, status=status.HTTP_403_FORBIDDEN)
+
+        if not os.path.exists(VIDEO_UPLOAD_DIR):
+            os.makedirs(VIDEO_UPLOAD_DIR)
+
+        uploaded_files = request.FILES.getlist("videos")  # 'videos' is the key in the formData
+        
+        saved_files = []
+
+        for file in uploaded_files:
+            # Validate file size (e.g., max 500 MB)
+            if file.size > 500 * 1024 * 1024:  # 500 MB
+                return Response(
+                    {"error": f"File {file.name} exceeds the maximum allowed size of 500 MB."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Save file with match_id prefix
+            file_name = f"{match_id}_{file.name}"
+            file_path = os.path.join(VIDEO_UPLOAD_DIR, file_name)
+
+            with open(file_path, "wb+") as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
+
+            saved_files.append(file_name)
+            
+        # Update `hasMatchVideosUploadCompleted` to True after a successful upload
+        match.hasMatchVideosUploadCompleted = True
+        match.save()
+
+        return Response(
+            {"message": "Videos uploaded successfully", "files": saved_files},
+            status=status.HTTP_201_CREATED,
+        )

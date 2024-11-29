@@ -16,7 +16,8 @@ SECRET_KEY = 'django-insecure-&sn4z(bl^d6fn+1zc_s36vue(&-&%@t)6bhxo*&=o@bzk^a6(n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+#ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['zensportstech.com', 'www.zensportstech.com', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -146,11 +147,18 @@ REST_FRAMEWORK = {
 }
 
 
-CORS_ALLOWED_ORIGINS = [
+"""CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:8000',
-    'http://13.201.19.162'
+    'http://13.201.19.162',
+    'https://zensportstech.com'
+]"""
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://zensportstech.com',
+    'https://www.zensportstech.com',
 ]
+
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=120),
@@ -168,3 +176,20 @@ SIMPLE_JWT = {
 
 RAZORPAY_KEY_ID = 'rzp_test_BjBfmX5M3wr9l1'
 RAZORPAY_KEY_SECRET = 'OZ5b9u8uAUHQFese8Rs0zSLJ'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Tells Django to treat requests coming through the reverse proxy as HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Redirect HTTP to HTTPS (make sure it's set to True to force all redirects to HTTPS)
+SECURE_SSL_REDIRECT = True
+
+# Set cookies to be secure only over HTTPS
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Ensure that Django doesn't allow any insecure (HTTP) connections in production
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True

@@ -9,6 +9,7 @@ class Ball(models.Model):
     match =  models.ForeignKey(Match,on_delete=models.CASCADE)
     innings = models.IntegerField()
     ballOver = models.FloatField()
+    ballNumber = models.IntegerField()
     striker = models.ForeignKey(Player,on_delete=models.CASCADE, related_name='striker')
     nonStriker = models.ForeignKey(Player,on_delete=models.CASCADE,related_name='non_striker')
     bowler = models.ForeignKey(Player,on_delete=models.CASCADE,related_name='bowler')

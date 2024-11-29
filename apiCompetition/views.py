@@ -61,10 +61,9 @@ class CompetitionDetailView(generics.RetrieveUpdateDestroyAPIView):
             raise PermissionDenied("Some teams do not belong to you or do not exist.")
 
         # Update the teams in the competition
-        competition.teams.set(teams)  # Use set() to replace the old teams
+        competition.teams.set(teams)  # Replace the old teams
         competition.hasUpdatedTeams = True
         competition.save()
-
 
     def perform_update(self, serializer):
         competition = self.get_object()
@@ -81,17 +80,10 @@ class CompetitionDetailView(generics.RetrieveUpdateDestroyAPIView):
         # Get the team IDs from the request and update teams if provided
         new_team_ids = self.request.data.get('teams', [])
         if new_team_ids:
-            self.update_teams(competition, new_team_ids)  # Call the custom method to update teams
+            self.update_teams(competition, new_team_ids)  # Update teams via method
 
         # Perform the rest of the update (non-team fields)
         serializer.save()
-
-
-    def perform_destroy(self, instance):
-        # Ensure the competition belongs to the user
-        if instance.user != self.request.user:
-            raise PermissionDenied("You don't have permission to delete this competition.")
-        instance.delete()
 
 class CompetitionTeamView(generics.RetrieveAPIView):
     serializer_class = CompetitionTeamSerializer

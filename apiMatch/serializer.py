@@ -113,6 +113,7 @@ class UltimateMatchSerializer(serializers.ModelSerializer):
             striker = last_ball.striker if last_ball else None
             non_striker = last_ball.nonStriker if last_ball else None
             bowler = last_ball.bowler if last_ball else None
+            ballNumber = last_ball.ballNumber if last_ball else 0
 
             # Logic to switch striker and non-striker based on runs
             if (striker_runs % 2 != 0 or bye_runs % 2 != 0 or leg_bye_runs % 2 != 0) and remaining_balls != 5:
@@ -130,11 +131,14 @@ class UltimateMatchSerializer(serializers.ModelSerializer):
             else:
                 bowler = bowler
 
+            
+
             # Returning player data
             return {
                 'striker': striker.id if striker else None,
                 'non_striker': non_striker.id if non_striker else None,
-                'bowler': bowler.id if bowler else None
+                'bowler': bowler.id if bowler else None,
+                'ballNumber': ballNumber if ballNumber else 0,
             }
         return {}
 

@@ -47,6 +47,7 @@ class Match(models.Model):
     leadingTeamChoseTo = models.CharField(max_length=20, default='')
     matchEnded = models.BooleanField(default=False)
     matchResult = models.CharField(max_length=50, default='')
+    hasMatchVideosUploadCompleted = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.competition.name + " - " + str(self.pk)

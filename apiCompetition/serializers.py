@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import MatchType, Competition, CompetitionTeamSquad, KnockOut
 from apiTeam.serializers import TeamSerializer
 from apiPlayer.serializers import PlayerSerializer
+from apiTeam.models import Team
 class MatchTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = MatchType
@@ -14,29 +15,37 @@ class KnockOutSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CompetitionSerializer(serializers.ModelSerializer):
+    # Explicitly define `teams` with `required=False` for optional behavior
+    teams = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        queryset=Team.objects.all(), 
+        required=False
+    )
 
-    #teams = TeamSerializer(many=True, required=False)
-    #matchType = MatchTypeSerializer()
     class Meta:
         model = Competition
-        exclude = ['user']
+        exclude = ['user']  # Exclude the `user` field as before
 
     def validate(self, data):
         user = self.context['request'].user
         tournament = data.get('tournament')
-        teams = data.get('teams')
 
         # Validate tournament ownership
         if tournament and tournament.user != user:
             raise serializers.ValidationError("You do not have permission to use this tournament.")
 
-        # Validate teams ownership
-        if teams:
-            for team in teams:
-                if team.user != user:
-                    raise serializers.ValidationError(f"You do not have permission to use the team: {team.name}")
-
         return data
+
+    def create(self, validated_data):
+        # Extract teams from validated data (if provided) or set to empty
+        teams = validated_data.pop('teams', [])
+
+        # Create the competition instance
+        competition = super().create(validated_data)
+
+        # Assign the empty teams (optional, as no teams are being passed on creation)
+        competition.teams.set(teams)
+        return competition
 
 class CompetitionTeamSquadSerializer(serializers.ModelSerializer):
     players = PlayerSerializer(many=True)
