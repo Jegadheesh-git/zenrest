@@ -23729,27 +23729,51 @@ const PC = ({
         navigator.mediaDevices
           .enumerateDevices()
           .then((r) => {
-            const o = r
-              .filter((a) => a.kind === "videoinput")
-              .find((a) => a.label.includes("OBS Virtual Camera"));
-            o
-              ? navigator.mediaDevices
-                  .getUserMedia({ video: { deviceId: { exact: o.deviceId } } })
-                  .then((a) => {
-                    t(a);
-                  })
-                  .catch((a) => {
-                    console.error("Error accessing OBS Virtual Camera:", a);
-                  })
-              : console.warn("OBS Virtual Camera not found.");
+            const s = r.filter((a) => a.kind === "videoinput");
+            console.log("Video input devices found:", s);
+            const o = s.find((a) => a.label.includes("OBS Virtual Camera"));
+            console.log("OBS Virtual Camera detected:", o),
+              o
+                ? navigator.mediaDevices
+                    .getUserMedia({
+                      video: { deviceId: { exact: o.deviceId } },
+                    })
+                    .then((a) => {
+                      console.log("Stream obtained successfully:", a), t(a);
+                    })
+                    .catch((a) => {
+                      console.error("Error accessing OBS Virtual Camera:", a);
+                    })
+                : (console.warn(
+                    "OBS Virtual Camera not found. Using default camera."
+                  ),
+                  navigator.mediaDevices
+                    .getUserMedia({ video: !0 })
+                    .then((a) => {
+                      t(a);
+                    })
+                    .catch((a) => {
+                      console.error("Error accessing default camera:", a);
+                    }));
           })
           .catch((r) => {
             console.error("Error fetching video devices:", r);
           });
       }, []),
-      T.useEffect(() => {
-        n.current && e && (n.current.srcObject = e);
-      }, [e]),
+      T.useEffect(
+        () => (
+          n.current &&
+            e &&
+            (console.log("Attaching stream to video element:", e),
+            (n.current.srcObject = e)),
+          () => {
+            e &&
+              (e.getTracks().forEach((r) => r.stop()),
+              console.log("Video stream stopped."));
+          }
+        ),
+        [e]
+      ),
       i.jsx("div", {
         className: "rounded-t-lg overflow-hidden",
         style: {
@@ -23764,6 +23788,7 @@ const PC = ({
               ref: n,
               autoPlay: !0,
               playsInline: !0,
+              muted: !0,
               style: { width: "100%", height: "100%", objectFit: "contain" },
             })
           : i.jsx("img", {
