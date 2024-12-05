@@ -147,12 +147,13 @@ REST_FRAMEWORK = {
 }
 
 
-"""CORS_ALLOWED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:8000',
     'http://13.201.19.162',
-    'https://zensportstech.com'
-]"""
+    
+]
+
 
 CSRF_TRUSTED_ORIGINS = [
     'https://zensportstech.com',
@@ -179,6 +180,7 @@ RAZORPAY_KEY_SECRET = 'OZ5b9u8uAUHQFese8Rs0zSLJ'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 # Tells Django to treat requests coming through the reverse proxy as HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
