@@ -31067,28 +31067,6 @@ function SE({ isVisible: e, onClose: t }) {
                       }),
                     ],
                   }),
-                  i.jsx("div", {
-                    className: "py-4",
-                    children: i.jsxs("div", {
-                      className: "py-2 flex justify-center gap-8",
-                      children: [
-                        i.jsx("p", {
-                          className: "text-md text-center",
-                          children: 'Please Click "Confirm" to End the Innings',
-                        }),
-                        i.jsx("button", {
-                          className:
-                            "text-md bg-green-900 p-2 font-bold rounded",
-                          children: "Confirm",
-                        }),
-                        i.jsx("button", {
-                          className:
-                            "text-md border-gray-400 border-2 p-2 font-bold rounded",
-                          children: "Cancel",
-                        }),
-                      ],
-                    }),
-                  }),
                   i.jsx("p", {
                     className: "text-center",
                     children: "Match result",
